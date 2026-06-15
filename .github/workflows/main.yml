@@ -134,13 +134,15 @@ jobs:
         run: |
           mkdir -p ci
 
-          printf '{\n' > ci/signal.json
-          printf '  "repo": "%s",\n' "${{ github.repository }}" >> ci/signal.json
-          printf '  "branch": "%s",\n' "${{ github.ref_name }}" >> ci/signal.json
-          printf '  "commit": "%s",\n' "${{ github.sha }}" >> ci/signal.json
-          printf '  "status": "%s",\n' "${{ job.status }}" >> ci/signal.json
-          printf '  "timestamp": "%s"\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> ci/signal.json
-          printf '}\n' >> ci/signal.json
+          cat <<EOF > ci/signal.json
+{
+  "repo": "${{ github.repository }}",
+  "branch": "${{ github.ref_name }}",
+  "commit": "${{ github.sha }}",
+  "status": "${{ job.status }}",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
 
           echo "✓ Signal written"
 
