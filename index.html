@@ -27,21 +27,15 @@
       background: #111827;
     }
 
-    .layer {
-      color: #a78bfa;
-    }
+    .layer { color: #a78bfa; }
+    .type { color: #34d399; }
+    .time { color: #94a3b8; font-size: 12px; }
+    .message { margin-top: 5px; }
 
-    .type {
-      color: #34d399;
-    }
-
-    .time {
+    .status {
+      margin-bottom: 15px;
       color: #94a3b8;
-      font-size: 12px;
-    }
-
-    .message {
-      margin-top: 5px;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -49,47 +43,87 @@
 <body>
 
 <h1>VISIL Timeline</h1>
+<div class="status" id="status">initializing VISIL...</div>
 <div id="timeline">loading...</div>
 
 <script>
-async function loadTimeline() {
-  try {
-    // IMPORTANT: replace with YOUR repo path
-    const url = "./system/timeline/buffer.jsonl";
+const seen = new Set();
 
-    const res = await fetch(url);
+async function loadTimeline() {
+  const container = document.getElementById("timeline");
+  const status = document.getElementById("status");
+
+  try {
+    status.textContent = "loading timeline...";
+
+    const url = "system/timeline/buffer.jsonl";
+
+    const res = await fetch(url + "?t=" + Date.now());
+
+    if (!res.ok) {
+      status.textContent = "timeline not found or not synced yet";
+      return;
+    }
+
     const text = await res.text();
+
+    if (!text.trim()) {
+      status.textContent = "timeline is empty";
+      return;
+    }
 
     const lines = text.trim().split("\n");
 
-    const container = document.getElementById("timeline");
     container.innerHTML = "";
+
+    let count = 0;
 
     lines.forEach(line => {
       if (!line.trim()) return;
 
-      const e = JSON.parse(line);
+      try {
+        const e = JSON.parse(line);
 
-      const div = document.createElement("div");
-      div.className = "event";
+        if (seen.has(e.id)) return;
+        seen.add(e.id);
 
-      div.innerHTML = `
-        <div class="time">${e.timestamp}</div>
-        <div class="type">type: ${e.type}</div>
-        <div class="layer">layer: ${e.layer}</div>
-        <div class="message">${e.message}</div>
-      `;
+        const div = document.createElement("div");
+        div.className = "event";
 
-      container.appendChild(div);
+        const age = Date.now() - new Date(e.timestamp).getTime();
+
+        div.innerHTML = `
+          <div class="time">${e.timestamp}</div>
+          <div class="type">type: ${e.type}</div>
+          <div class="layer">layer: ${e.layer}</div>
+          <div class="message">${e.message}</div>
+        `;
+
+        // visual freshness indicator
+        if (age < 30000) {
+          div.style.borderLeft = "2px solid #22c55e";
+        }
+
+        container.appendChild(div);
+        count++;
+
+      } catch (err) {
+        // skip bad lines safely
+      }
     });
 
+    status.textContent = `loaded ${count} events`;
+
   } catch (err) {
-    document.getElementById("timeline").innerHTML =
-      "VISIL failed to load timeline.";
+    status.textContent = "VISIL failed to load timeline";
   }
 }
 
+// initial load
 loadTimeline();
+
+// live refresh
+setInterval(loadTimeline, 3000);
 </script>
 
 </body>
