@@ -2,36 +2,95 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>VLSA</title>
+  <title>VISIL Timeline</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/style.css">
+
+  <link rel="stylesheet" href="assets/CSS/style.css">
+
+  <style>
+    body {
+      font-family: monospace;
+      background: #0b0f14;
+      color: #d7e1ea;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #7dd3fc;
+    }
+
+    .event {
+      border-left: 2px solid #334155;
+      padding: 10px;
+      margin: 10px 0;
+      background: #111827;
+    }
+
+    .layer {
+      color: #a78bfa;
+    }
+
+    .type {
+      color: #34d399;
+    }
+
+    .time {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .message {
+      margin-top: 5px;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>VLSA</h1>
-    <p>Vera Lynn Signal Architecture</p>
 
-    <section>
-      <h2>System Overview</h2>
-      <p>Structured signal architecture for layered cognition, observation, and interpretation.</p>
-    </section>
+<h1>VISIL Timeline</h1>
+<div id="timeline">loading...</div>
 
-    <section>
-      <h2>Core Layers</h2>
-      <ul>
-        <li><b>Signal Model</b> — structural backbone of system logic and persistence</li>
-        <li><b>VISIL</b> — observational lens layer (what is perceived and how it is filtered)</li>
-        <li><b>Lumen</b> — interpretive cognition layer (meaning-making and synthesis)</li>
-        <li><b>VLS</b> — identity / system signature layer</li>
-      </ul>
-    </section>
+<script>
+async function loadTimeline() {
+  try {
+    // IMPORTANT: replace with YOUR repo path
+    const url = "./system/timeline/buffer.jsonl";
 
-    <section>
-      <h2>Design Principle</h2>
-      <p>Signal is not stored as content. It is stored as transformation across layers.</p>
-    </section>
+    const res = await fetch(url);
+    const text = await res.text();
 
-  </div>
+    const lines = text.trim().split("\n");
+
+    const container = document.getElementById("timeline");
+    container.innerHTML = "";
+
+    lines.forEach(line => {
+      if (!line.trim()) return;
+
+      const e = JSON.parse(line);
+
+      const div = document.createElement("div");
+      div.className = "event";
+
+      div.innerHTML = `
+        <div class="time">${e.timestamp}</div>
+        <div class="type">type: ${e.type}</div>
+        <div class="layer">layer: ${e.layer}</div>
+        <div class="message">${e.message}</div>
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    document.getElementById("timeline").innerHTML =
+      "VISIL failed to load timeline.";
+  }
+}
+
+loadTimeline();
+</script>
+
 </body>
 </html>
