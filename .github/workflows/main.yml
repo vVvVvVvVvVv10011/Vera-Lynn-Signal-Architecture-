@@ -1,1 +1,168 @@
+name: Vera-Lynn CI (Stable)
 
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Structure + Secrets Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Structure check
+        run: |
+          echo "Checking structure..."
+
+          if [ ! -f "README.md" ]; then
+            echo "STRUCTURE_FAILURE"
+            exit 1
+          fi
+
+          if [ ! -d "system" ]; then
+            echo "STRUCTURE_FAILURE"
+            exit 1
+          fi
+
+          echo "✓ Structure OK"
+
+      - name: Secret scan
+        run: |
+          echo "Scanning for secrets..."
+
+          PATTERNS="password|secret|api[_-]?key|token|authorization|private_key"
+
+          if grep -rE "$PATTERNS" \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude-dir=.env \
+            --exclude="*.md" . 2>/dev/null; then
+            echo "SECURITY_FAILURE"
+            exit 1
+          fi
+
+          echo "✓ No secrets found"
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build step
+        run: |
+          if [ -f "package.json" ]; then
+            npm install
+            npm run build || exit 1
+          elif [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          else
+            echo "No build step"
+          fi
+
+          echo "✓ Build complete"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          if [ -f "package.json" ]; then
+            npm test || exit 1
+          elif [ -d "tests" ] || [ -f "pytest.ini" ]; then
+            pip install -r requirements.txt 2>/dev/null || true
+            pytest -v
+          else
+            echo "No tests found"
+          fi
+
+          echo "✓ Tests complete"
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unsafe pattern scan
+        run: |
+          UNSAFE="eval\(|exec\(|rm -rf /|curl .* \| bash"
+
+          if grep -rE "$UNSAFE" \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            . 2>/dev/null; then
+            echo "SECURITY_FAILURE"
+            exit 1
+          fi
+
+          echo "✓ Security OK"
+
+  signal:
+    name: Emit Signal
+    runs-on: ubuntu-latest
+    needs: [validate, build, test, security]
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create signal file
+        run: |
+          mkdir -p ci
+
+          cat <<EOF > ci/signal.json
+{
+  "repo": "${{ github.repository }}",
+  "branch": "${{ github.ref_name }}",
+  "commit": "${{ github.sha }}",
+  "status": "${{ job.status }}",
+  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+
+          echo "✓ Signal written"
+
+      - name: Upload signal
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-signal
+          path: ci/signal.json
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: signal
+    if: always()
+
+    steps:
+      - name: Output summary
+        run: |
+          echo "CI COMPLETE"
+          echo "Repo: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Status: done"
