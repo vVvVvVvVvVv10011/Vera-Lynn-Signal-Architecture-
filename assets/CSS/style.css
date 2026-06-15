@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  padding: 40px 20px;
+  font-family: system-ui, Arial, sans-serif;
+  background: #0b0f14;
+  color: #d7e1ea;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  color: #7bdff2;
+  margin-bottom: 10px;
+}
+
+h2 {
+  margin-top: 30px;
+  color: #d7e1ea;
+}
+
+p {
+  color: #8aa0b2;
+}
+
+ul {
+  padding-left: 0;
+}
+
+li {
+  list-style: none;
+  padding: 10px;
+  margin: 8px 0;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+}
