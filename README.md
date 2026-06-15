@@ -1,14 +1,10 @@
-# Vera Lynn's Signal Architecture
+# VLSA
 
-A structured system for signal interpretation, layered cognition, and interface-based system design.
+Vera Lynn Signal Architecture
+
+A structured system for signal processing, layered cognition, and interface design.
 
 ## Layers
-- Atrium → system logic layer
-- Atria → interface layer
-- VLS → identity layer
-
-## Purpose
-To structure signals into stable, interpretable systems across layered environments.
-
-## Structure
-See /system for core architecture definitions.
+- Atrium: Core system
+- Atria: Interface layer
+- VLS: Identity layer
