@@ -25,12 +25,10 @@ jobs:
           echo "Checking structure..."
 
           if [ ! -f "README.md" ]; then
-            echo "STRUCTURE_FAILURE"
             exit 1
           fi
 
           if [ ! -d "system" ]; then
-            echo "STRUCTURE_FAILURE"
             exit 1
           fi
 
@@ -38,8 +36,6 @@ jobs:
 
       - name: Secret scan
         run: |
-          echo "Scanning for secrets..."
-
           PATTERNS="password|secret|api[_-]?key|token|authorization|private_key"
 
           if grep -rE "$PATTERNS" \
@@ -47,7 +43,6 @@ jobs:
             --exclude-dir=node_modules \
             --exclude-dir=.env \
             --exclude="*.md" . 2>/dev/null; then
-            echo "SECURITY_FAILURE"
             exit 1
           fi
 
@@ -59,18 +54,15 @@ jobs:
     needs: validate
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Build step
+      - name: Build
         run: |
           if [ -f "package.json" ]; then
             npm install
             npm run build || exit 1
           elif [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
-          else
-            echo "No build step"
           fi
 
           echo "✓ Build complete"
@@ -81,18 +73,15 @@ jobs:
     needs: validate
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Run tests
+      - name: Test
         run: |
           if [ -f "package.json" ]; then
             npm test || exit 1
           elif [ -d "tests" ] || [ -f "pytest.ini" ]; then
             pip install -r requirements.txt 2>/dev/null || true
             pytest -v
-          else
-            echo "No tests found"
           fi
 
           echo "✓ Tests complete"
@@ -103,10 +92,9 @@ jobs:
     needs: validate
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Unsafe pattern scan
+      - name: Scan
         run: |
           UNSAFE="eval\(|exec\(|rm -rf /|curl .* \| bash"
 
@@ -114,7 +102,6 @@ jobs:
             --exclude-dir=.git \
             --exclude-dir=node_modules \
             . 2>/dev/null; then
-            echo "SECURITY_FAILURE"
             exit 1
           fi
 
@@ -127,10 +114,9 @@ jobs:
     if: always()
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Create signal file
+      - name: Create signal
         run: |
           mkdir -p ci
 
@@ -146,7 +132,7 @@ EOF
 
           echo "✓ Signal written"
 
-      - name: Upload signal
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: ci-signal
@@ -159,10 +145,8 @@ EOF
     if: always()
 
     steps:
-      - name: Output summary
-        run: |
+      - run: |
           echo "CI COMPLETE"
           echo "Repo: ${{ github.repository }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
-          echo "Status: done"
