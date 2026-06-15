@@ -1,0 +1,13 @@
+# system noise
+.DS_Store
+*.log
+
+# optional folders (keep local only for now)
+CSS/
+Vera-Lynn-Signal-Architecture-/
+docs/
+system/
+
+# OS / editor junk
+*.swp
+*.tmp
