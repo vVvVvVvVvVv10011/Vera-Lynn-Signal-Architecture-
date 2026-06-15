@@ -1,13 +1,38 @@
-# system noise
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+
+# OS junk
 .DS_Store
+Thumbs.db
+
+# Logs
 *.log
 
-# optional folders (keep local only for now)
-CSS/
-Vera-Lynn-Signal-Architecture-/
-docs/
-system/
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
 
-# OS / editor junk
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Editors
+.vscode/
+.idea/
+
+# Git temp files
 *.swp
-*.tmp
+*.swo
+
+# Optional local experiment folders (keep if you're still testing things)
+Vera-Lynn-Signal-Architecture-/
