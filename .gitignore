@@ -1,38 +1,12 @@
-# Environment files (NEVER commit secrets)
-.env
-.env.local
-.env.*.local
+# Runtime timeline data (DO NOT TRACK)
+system/timeline/buffer.jsonl
+system/timeline/events.jsonl
+system/timeline/*.old.jsonl
 
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Logs
+# runtime/generated state
+system/archive/
 *.log
+*.tmp
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-dist/
-build/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.venv/
-venv/
-
-# Editors
-.vscode/
-.idea/
-
-# Git temp files
-*.swp
-*.swo
-
-# Optional local experiment folders (keep if you're still testing things)
-Vera-Lynn-Signal-Architecture-/
+# environment noise
+.env
