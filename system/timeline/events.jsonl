@@ -1,0 +1,5 @@
+{"id":"evt-0001","type":"init","timestamp":"2026-06-15T00:00:00Z","layer":"system","message":"timeline initialized","meta":{"version":"v1"}}
+{"id":"evt-1781552521","type":"signal","timestamp":"2026-06-15T19:42:01Z","layer":"visil","message":"VISIL layer initialized via timeline system"}
+{"id":"evt-1781552705","type":"signal","timestamp":"2026-06-15T19:45:05Z","layer":"visil","message":"test message"}
+{"id":"evt-1781552714","type":"signal","timestamp":"2026-06-15T19:45:14Z","layer":"visil","message":"VISIL initialized via tl command"}
+{"id":"evt-1781552894","type":"signal","timestamp":"2026-06-15T19:48:14Z","layer":"visil","message":"test event"}

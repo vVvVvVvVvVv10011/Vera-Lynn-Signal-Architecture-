@@ -1,0 +1,87 @@
+/* VLSA Core Styling Layer */
+/* VISIL: visual lensing / perception formatting */
+
+:root {
+  --bg: #0b0f14;
+  --panel: #111823;
+  --text: #d7e1ea;
+  --muted: #8aa0b2;
+  --accent: #7bdff2;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  padding: 40px 20px;
+}
+
+/* Main container = VISIL frame */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+/* Title */
+h1 {
+  font-size: 32px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+/* Subtitle */
+p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Sections = structural signal blocks */
+section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+/* List styling for architecture layers */
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: 0.2s ease;
+}
+
+li:hover {
+  border-color: var(--accent);
+  transform: translateX(2px);
+}
+
+/* Emphasis */
+b {
+  color: var(--accent);
+}
