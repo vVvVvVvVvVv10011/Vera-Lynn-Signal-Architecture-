@@ -1,1 +1,0 @@
-# Vera-Lynn-Signal-Architecture-
