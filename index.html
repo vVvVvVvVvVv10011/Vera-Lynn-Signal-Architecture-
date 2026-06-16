@@ -5,37 +5,24 @@
   <title>VISIL Timeline</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="assets/CSS/style.css">
-
   <style>
     body {
       font-family: monospace;
       background: #0b0f14;
       color: #d7e1ea;
-      margin: 0;
       padding: 20px;
-    }
-
-    h1 {
-      color: #7dd3fc;
     }
 
     .event {
       border-left: 2px solid #334155;
-      padding: 10px;
       margin: 10px 0;
+      padding: 10px;
       background: #111827;
     }
 
-    .layer { color: #a78bfa; }
-    .type { color: #34d399; }
-    .time { color: #94a3b8; font-size: 12px; }
-    .message { margin-top: 5px; }
-
-    .status {
-      margin-bottom: 15px;
+    .meta {
+      font-size: 12px;
       color: #94a3b8;
-      font-size: 13px;
     }
   </style>
 </head>
@@ -43,87 +30,42 @@
 <body>
 
 <h1>VISIL Timeline</h1>
-<div class="status" id="status">initializing VISIL...</div>
 <div id="timeline">loading...</div>
 
 <script>
-const seen = new Set();
-
-async function loadTimeline() {
-  const container = document.getElementById("timeline");
-  const status = document.getElementById("status");
-
+async function load() {
   try {
-    status.textContent = "loading timeline...";
-
-    const url = "system/timeline/buffer.jsonl";
-
-    const res = await fetch(url + "?t=" + Date.now());
-
-    if (!res.ok) {
-      status.textContent = "timeline not found or not synced yet";
-      return;
-    }
-
+    const res = await fetch("./system/timeline/buffer.jsonl");
     const text = await res.text();
 
-    if (!text.trim()) {
-      status.textContent = "timeline is empty";
-      return;
+    const lines = text.trim().split("\n");
+    const el = document.getElementById("timeline");
+    el.innerHTML = "";
+
+    for (let line of lines) {
+      if (!line) continue;
+
+      const e = JSON.parse(line);
+
+      const div = document.createElement("div");
+      div.className = "event";
+
+      div.innerHTML = `
+        <div class="meta">${e.timestamp}</div>
+        <div>type: ${e.type}</div>
+        <div>layer: ${e.layer}</div>
+        <div>${e.message}</div>
+      `;
+
+      el.appendChild(div);
     }
 
-    const lines = text.trim().split("\n");
-
-    container.innerHTML = "";
-
-    let count = 0;
-
-    lines.forEach(line => {
-      if (!line.trim()) return;
-
-      try {
-        const e = JSON.parse(line);
-
-        if (seen.has(e.id)) return;
-        seen.add(e.id);
-
-        const div = document.createElement("div");
-        div.className = "event";
-
-        const age = Date.now() - new Date(e.timestamp).getTime();
-
-        div.innerHTML = `
-          <div class="time">${e.timestamp}</div>
-          <div class="type">type: ${e.type}</div>
-          <div class="layer">layer: ${e.layer}</div>
-          <div class="message">${e.message}</div>
-        `;
-
-        // visual freshness indicator
-        if (age < 30000) {
-          div.style.borderLeft = "2px solid #22c55e";
-        }
-
-        container.appendChild(div);
-        count++;
-
-      } catch (err) {
-        // skip bad lines safely
-      }
-    });
-
-    status.textContent = `loaded ${count} events`;
-
-  } catch (err) {
-    status.textContent = "VISIL failed to load timeline";
+  } catch (e) {
+    document.getElementById("timeline").innerText = "timeline load failed";
   }
 }
 
-// initial load
-loadTimeline();
-
-// live refresh
-setInterval(loadTimeline, 3000);
+load();
 </script>
 
 </body>
