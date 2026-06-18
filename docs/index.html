@@ -1,71 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signal Architecture Navigation</title>
+<title>Signal Architecture v2</title>
 
 <style>
 body {
-  margin: 0;
+  margin:0;
   font-family: monospace;
-  background: #0b0f14;
-  color: #d6e2f0;
+  background:#070a0f;
+  color:#cfe6ff;
 }
 
 header {
-  padding: 16px;
-  border-bottom: 1px solid #1f2a38;
+  padding:20px;
+  border-bottom:1px solid #1c2a3a;
 }
 
-.title {
-  font-size: 16px;
-  color: #7cc4ff;
+h1 {
+  margin:0;
+  font-size:20px;
+  color:#7cc4ff;
 }
 
-.subtitle {
-  font-size: 12px;
-  color: #8aa0b6;
-  margin-top: 6px;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 16px;
+#grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+  padding:20px;
 }
 
 .card {
-  border: 1px solid #1f2a38;
-  padding: 12px;
-  border-radius: 6px;
-  background: #0f1620;
-  cursor: pointer;
-  transition: 0.2s;
+  border:1px solid #1b2a3a;
+  padding:14px;
+  background:#0c121a;
+  cursor:pointer;
 }
 
 .card:hover {
-  background: #111c2a;
-  border-color: #2a3a50;
+  background:#101a26;
 }
 
-.label {
-  color: #7cc4ff;
-  font-size: 14px;
+.panel {
+  position:fixed;
+  right:0;
+  top:0;
+  width:40%;
+  height:100%;
+  background:#0b1119;
+  border-left:1px solid #223246;
+  padding:20px;
+  overflow:auto;
+  display:none;
 }
 
-.desc {
-  font-size: 12px;
-  color: #9bb0c5;
-  margin-top: 6px;
-}
-
-.footer {
-  padding: 16px;
-  font-size: 11px;
-  color: #5f7a96;
-  border-top: 1px solid #1f2a38;
+button {
+  background:#1b2a3a;
+  color:#cfe6ff;
+  border:none;
+  padding:8px;
+  margin:5px 0;
+  cursor:pointer;
+  width:100%;
 }
 </style>
 </head>
@@ -73,41 +69,74 @@ header {
 <body>
 
 <header>
-  <div class="title">Signal Architecture</div>
-  <div class="subtitle">Structured signal lifecycle + state modeling system</div>
+  <h1>Signal Architecture v2</h1>
+  <p>Structured annotation + dataset + signal graph system</p>
 </header>
 
-<div class="container">
+<div id="grid">
 
-  <div class="card" onclick="openPath('ledger/signals')">
-    <div class="label">Ledger / Signals</div>
-    <div class="desc">Immutable event history stream</div>
+  <div class="card" onclick="openPanel('ledger')">
+    📡 Ledger Signals
   </div>
 
-  <div class="card" onclick="openPath('checkpoints/signals')">
-    <div class="label">Checkpoints</div>
-    <div class="desc">State snapshots and recovery points</div>
+  <div class="card" onclick="openPanel('checkpoints')">
+    🧠 Checkpoints
   </div>
 
-  <div class="card" onclick="openPath('weaver')">
-    <div class="label">Signal Weaver</div>
-    <div class="desc">Transformation and structuring logic</div>
+  <div class="card" onclick="openPanel('weaver')">
+    🧬 Signal Weaver
   </div>
 
-  <div class="card" onclick="openPath('../README.md')">
-    <div class="label">System Overview</div>
-    <div class="desc">Architecture description and intent</div>
+  <div class="card" onclick="openPanel('export')">
+    📦 Dataset Export Modes
   </div>
 
 </div>
 
-<div class="footer">
-Designed as a static navigation layer for GitHub Pages deployment
-</div>
+<div id="panel" class="panel"></div>
 
 <script>
-function openPath(path){
-  window.location.href = "../" + path;
+function openPanel(type){
+  let p = document.getElementById("panel");
+  p.style.display = "block";
+
+  if(type === "ledger"){
+    p.innerHTML = `
+      <h2>Ledger Signals</h2>
+      <p>Raw event stream stored as JSONL.</p>
+      <button>View JSONL</button>
+      <button>Filter by tag</button>
+      <button>Trace entity links</button>
+    `;
+  }
+
+  if(type === "checkpoints"){
+    p.innerHTML = `
+      <h2>Checkpoints</h2>
+      <p>State snapshots of system evolution.</p>
+      <button>Open latest state</button>
+      <button>Compare states</button>
+    `;
+  }
+
+  if(type === "weaver"){
+    p.innerHTML = `
+      <h2>Signal Weaver</h2>
+      <p>Transforms raw signals into structured relations.</p>
+      <button>Run transformation</button>
+      <button>View graph</button>
+    `;
+  }
+
+  if(type === "export"){
+    p.innerHTML = `
+      <h2>Dataset Export</h2>
+      <p>AI training-ready outputs.</p>
+      <button>Export CSV</button>
+      <button>Export JSONL</button>
+      <button>Export Graph Format</button>
+    `;
+  }
 }
 </script>
 
