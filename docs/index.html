@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Vera Lynn — Signal Architecture Portfolio</title>
+<title>VLSA Signal System</title>
 
 <style>
 body {
@@ -12,170 +12,271 @@ body {
   color:#cfe6ff;
 }
 
-header {
-  padding:40px;
-  border-bottom:1px solid #1c2a3a;
+#app {
+  display:flex;
+  height:100vh;
 }
 
-h1 {
-  margin:0;
-  font-size:26px;
+/* SIDEBAR */
+#sidebar {
+  width:220px;
+  background:#0b1119;
+  border-right:1px solid #223246;
+  padding:12px;
+  position:relative;
+}
+
+#sidebar h3 {
   color:#7cc4ff;
+  margin-bottom:20px;
 }
 
-.sub {
-  opacity:0.8;
-  margin-top:10px;
-}
-
-.container {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:12px;
-  padding:20px;
-}
-
-.card {
-  border:1px solid #1b2a3a;
-  padding:16px;
-  background:#0c121a;
+#sidebar button {
+  width:100%;
+  margin-bottom:8px;
+  background:#111a26;
+  border:1px solid #223;
+  padding:8px;
+  color:#cfe6ff;
   cursor:pointer;
 }
 
-.card:hover {
-  background:#101a26;
+#sidebar button:hover {
+  background:#152235;
 }
 
-.panel {
-  position:fixed;
-  right:0;
-  top:0;
-  width:45%;
-  height:100%;
-  background:#0b1119;
-  border-left:1px solid #223246;
+#status {
+  position:absolute;
+  bottom:10px;
+  font-size:12px;
+  opacity:0.7;
+}
+
+/* MAIN */
+#main {
+  flex:1;
   padding:20px;
   overflow:auto;
-  display:none;
 }
 
-button {
-  background:#1b2a3a;
+/* COMMAND BAR */
+#cmdbar {
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+#cmd {
+  flex:1;
+  padding:8px;
+  background:#0b1119;
+  border:1px solid #223;
   color:#cfe6ff;
-  border:none;
-  padding:10px;
+}
+
+/* DATA */
+.entry {
+  border:1px solid #223246;
+  padding:8px;
   margin:6px 0;
   cursor:pointer;
-  width:100%;
+  background:#0c121a;
+}
+
+.entry:hover {
+  background:#111a26;
+}
+
+pre {
+  white-space:pre-wrap;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Vera Lynn</h1>
-  <div class="sub">
-    Signal Architecture • CLI Systems • Dataset Engineering • Annotation Tools
-  </div>
-</header>
+<div id="app">
 
-<div class="container">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <h3>VLSA SYSTEM</h3>
 
-  <div class="card" onclick="openPanel('about')">
-    👤 About
-  </div>
+    <button onclick="openPanel('dashboard')">Dashboard</button>
+    <button onclick="openPanel('stream')">Signal Stream</button>
+    <button onclick="openPanel('search')">Search</button>
+    <button onclick="openPanel('graph')">Graph View</button>
+    <button onclick="openPanel('export')">Export</button>
 
-  <div class="card" onclick="openPanel('projects')">
-    🧠 Projects
+    <div id="status">● SYSTEM ONLINE</div>
   </div>
 
-  <div class="card" onclick="openPanel('system')">
-    ⚙ Live System
-  </div>
+  <!-- MAIN -->
+  <div id="main">
 
-  <div class="card" onclick="openPanel('dataset')">
-    📊 Dataset Viewer
+    <div id="cmdbar">
+      <input id="cmd" placeholder="search signals, tags, entities..." />
+      <button onclick="runSearch()">RUN</button>
+    </div>
+
+    <div id="panel"></div>
+
   </div>
 
 </div>
 
-<div id="panel" class="panel"></div>
-
 <script>
 
+let GLOBAL_LOGS = [];
+
+/* -----------------------------
+   LOAD DATASET
+----------------------------- */
 async function loadLogs() {
   const res = await fetch("../data/logs.jsonl");
   const text = await res.text();
 
-  return text.trim().split("\n").map(l => {
-    try { return JSON.parse(l); } catch(e) { return null; }
-  }).filter(Boolean);
+  GLOBAL_LOGS = text.trim().split("\n")
+    .map(l => {
+      try { return JSON.parse(l); } catch(e) { return null; }
+    })
+    .filter(Boolean);
+
+  return GLOBAL_LOGS;
 }
 
+/* -----------------------------
+   SEARCH ENGINE
+----------------------------- */
+function runSearch() {
+  const q = document.getElementById("cmd").value.toLowerCase();
+
+  const results = GLOBAL_LOGS.filter(l =>
+    JSON.stringify(l).toLowerCase().includes(q)
+  );
+
+  renderStream(results);
+}
+
+/* -----------------------------
+   MAIN ROUTER
+----------------------------- */
 async function openPanel(type) {
+
   const p = document.getElementById("panel");
-  p.style.display = "block";
 
-  if(type === "about") {
+  if(GLOBAL_LOGS.length === 0) {
+    await loadLogs();
+  }
+
+  /* DASHBOARD */
+  if(type === "dashboard") {
     p.innerHTML = `
-      <h2>About</h2>
-      <p>
-        I build local-first systems for structured cognition, annotation,
-        and signal processing pipelines.
-      </p>
-      <p>
-        Focus: CLI tooling, dataset structure, and human-readable machine workflows.
-      </p>
+      <h2>System Dashboard</h2>
+
+      <div class="entry">Dataset size: ${GLOBAL_LOGS.length}</div>
+      <div class="entry">Modules: vlsa / annotation / atrium</div>
+      <div class="entry">Status: stable signal pipeline</div>
     `;
   }
 
-  if(type === "projects") {
-    p.innerHTML = `
-      <h2>Projects</h2>
-
-      <div>
-        <b>VLSA Work CLI</b><br/>
-        Annotation + logging + structured signal capture
-      </div>
-
-      <hr/>
-
-      <div>
-        <b>Signal Architecture</b><br/>
-        Visual dataset + graph exploration system
-      </div>
-    `;
+  /* STREAM */
+  if(type === "stream") {
+    renderStream(GLOBAL_LOGS);
   }
 
-  if(type === "system") {
-    p.innerHTML = `
-      <h2>Live System</h2>
-
-      <button onclick="window.open('../data/logs.jsonl')">
-        View Raw Dataset (JSONL)
-      </button>
-
-      <button onclick="alert('CLI bridge: vlsa.sh')">
-        CLI Bridge (vlsa.sh)
-      </button>
-    `;
-  }
-
-  if(type === "dataset") {
-    const logs = await loadLogs();
+  /* GRAPH */
+  if(type === "graph") {
+    const edges = GLOBAL_LOGS.filter(l =>
+      l.entity && l.entity.startsWith("linked:")
+    );
 
     p.innerHTML = `
-      <h2>Dataset Viewer</h2>
-      <p>Total entries: ${logs.length}</p>
+      <h2>Graph View</h2>
 
-      ${logs.slice(0,20).map(l => `
-        <div style="border:1px solid #223; margin:6px 0; padding:6px;">
-          <b>${l.module}</b> — ${l.text || l.msg || ""}
+      ${edges.length === 0 ? "<p>No links yet.</p>" : ""}
+
+      ${edges.map(e => `
+        <div class="entry">
+          ${e.id || "node"} → ${e.entity}
         </div>
       `).join("")}
     `;
   }
+
+  /* EXPORT */
+  if(type === "export") {
+    p.innerHTML = `
+      <h2>Export Dataset</h2>
+
+      <button onclick="downloadJSON()">Export JSON</button>
+      <button onclick="downloadCSV()">Export CSV</button>
+    `;
+  }
+
+  /* SEARCH MODE */
+  if(type === "search") {
+    p.innerHTML = `
+      <h2>Search Mode</h2>
+      <p>Use command bar above.</p>
+    `;
+  }
+}
+
+/* -----------------------------
+   STREAM RENDER
+----------------------------- */
+function renderStream(data) {
+  const p = document.getElementById("panel");
+
+  p.innerHTML = `
+    <h2>Signal Stream</h2>
+
+    ${data.slice(-50).reverse().map(l => `
+      <div class="entry">
+        <b>${l.module}</b><br/>
+        ${l.text || l.msg || ""}
+        <br/>
+        <small>${l.t || ""}</small>
+      </div>
+    `).join("")}
+  `;
+}
+
+/* -----------------------------
+   EXPORTERS
+----------------------------- */
+function downloadJSON() {
+  const blob = new Blob([JSON.stringify(GLOBAL_LOGS, null, 2)], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "vlsa_dataset.json";
+  a.click();
+}
+
+function downloadCSV() {
+  if(GLOBAL_LOGS.length === 0) return;
+
+  const keys = Object.keys(GLOBAL_LOGS[0]);
+
+  const csv = [
+    keys.join(","),
+    ...GLOBAL_LOGS.map(row =>
+      keys.map(k => JSON.stringify(row[k] || "")).join(",")
+    )
+  ].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vlsa_dataset.csv";
+  a.click();
 }
 
 </script>
