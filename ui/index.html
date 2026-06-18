@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Architecture Navigation</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: monospace;
+  background: #0b0f14;
+  color: #d6e2f0;
+}
+
+header {
+  padding: 16px;
+  border-bottom: 1px solid #1f2a38;
+}
+
+.title {
+  font-size: 16px;
+  color: #7cc4ff;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #8aa0b6;
+  margin-top: 6px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.card {
+  border: 1px solid #1f2a38;
+  padding: 12px;
+  border-radius: 6px;
+  background: #0f1620;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background: #111c2a;
+  border-color: #2a3a50;
+}
+
+.label {
+  color: #7cc4ff;
+  font-size: 14px;
+}
+
+.desc {
+  font-size: 12px;
+  color: #9bb0c5;
+  margin-top: 6px;
+}
+
+.footer {
+  padding: 16px;
+  font-size: 11px;
+  color: #5f7a96;
+  border-top: 1px solid #1f2a38;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="title">Signal Architecture</div>
+  <div class="subtitle">Structured signal lifecycle + state modeling system</div>
+</header>
+
+<div class="container">
+
+  <div class="card" onclick="openPath('ledger/signals')">
+    <div class="label">Ledger / Signals</div>
+    <div class="desc">Immutable event history stream</div>
+  </div>
+
+  <div class="card" onclick="openPath('checkpoints/signals')">
+    <div class="label">Checkpoints</div>
+    <div class="desc">State snapshots and recovery points</div>
+  </div>
+
+  <div class="card" onclick="openPath('weaver')">
+    <div class="label">Signal Weaver</div>
+    <div class="desc">Transformation and structuring logic</div>
+  </div>
+
+  <div class="card" onclick="openPath('../README.md')">
+    <div class="label">System Overview</div>
+    <div class="desc">Architecture description and intent</div>
+  </div>
+
+</div>
+
+<div class="footer">
+Designed as a static navigation layer for GitHub Pages deployment
+</div>
+
+<script>
+function openPath(path){
+  window.location.href = "../" + path;
+}
+</script>
+
+</body>
+</html>
