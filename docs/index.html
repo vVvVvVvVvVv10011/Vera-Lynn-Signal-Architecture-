@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Signal Architecture v2</title>
+<title>Signal Architecture v3</title>
 
 <style>
 body {
@@ -45,7 +45,7 @@ h1 {
   position:fixed;
   right:0;
   top:0;
-  width:40%;
+  width:42%;
   height:100%;
   background:#0b1119;
   border-left:1px solid #223246;
@@ -59,9 +59,24 @@ button {
   color:#cfe6ff;
   border:none;
   padding:8px;
-  margin:5px 0;
+  margin:6px 0;
   cursor:pointer;
   width:100%;
+}
+
+.entry {
+  border:1px solid #223246;
+  padding:8px;
+  margin:6px 0;
+  cursor:pointer;
+}
+
+.entry:hover {
+  background:#111a26;
+}
+
+pre {
+  white-space:pre-wrap;
 }
 </style>
 </head>
@@ -69,8 +84,8 @@ button {
 <body>
 
 <header>
-  <h1>Signal Architecture v2</h1>
-  <p>Structured annotation + dataset + signal graph system</p>
+  <h1>Signal Architecture v3</h1>
+  <p>Live dataset explorer + annotation stream + export layer</p>
 </header>
 
 <div id="grid">
@@ -88,7 +103,7 @@ button {
   </div>
 
   <div class="card" onclick="openPanel('export')">
-    📦 Dataset Export Modes
+    📦 Dataset Export
   </div>
 
 </div>
@@ -96,47 +111,112 @@ button {
 <div id="panel" class="panel"></div>
 
 <script>
-function openPanel(type){
-  let p = document.getElementById("panel");
+async function loadLogs() {
+  const res = await fetch("../data/logs.jsonl");
+  const text = await res.text();
+
+  const lines = text.trim().split("\n");
+
+  return lines
+    .map(l => {
+      try { return JSON.parse(l); } catch(e) { return null; }
+    })
+    .filter(Boolean);
+}
+
+async function openPanel(type) {
+  const p = document.getElementById("panel");
   p.style.display = "block";
 
-  if(type === "ledger"){
+  if(type === "ledger") {
+    const logs = await loadLogs();
+
     p.innerHTML = `
       <h2>Ledger Signals</h2>
-      <p>Raw event stream stored as JSONL.</p>
-      <button>View JSONL</button>
-      <button>Filter by tag</button>
-      <button>Trace entity links</button>
+      <p>Total entries: ${logs.length}</p>
+
+      ${logs.map((l, i) => `
+        <div class="entry" onclick='expandEntry(${JSON.stringify(l).replace(/'/g,"")})'>
+          <b>${l.module || "unknown"}</b> — ${l.text || l.msg || ""}
+        </div>
+      `).join("")}
     `;
   }
 
-  if(type === "checkpoints"){
+  if(type === "checkpoints") {
     p.innerHTML = `
       <h2>Checkpoints</h2>
-      <p>State snapshots of system evolution.</p>
-      <button>Open latest state</button>
+      <p>System state snapshots (future expansion).</p>
       <button>Compare states</button>
+      <button>View timeline</button>
     `;
   }
 
-  if(type === "weaver"){
+  if(type === "weaver") {
     p.innerHTML = `
       <h2>Signal Weaver</h2>
-      <p>Transforms raw signals into structured relations.</p>
-      <button>Run transformation</button>
-      <button>View graph</button>
+      <p>Transforms raw logs into structured relations.</p>
+      <button>Run weave (future)</button>
+      <button>View graph (future)</button>
     `;
   }
 
-  if(type === "export"){
+  if(type === "export") {
+    const logs = await loadLogs();
+
     p.innerHTML = `
       <h2>Dataset Export</h2>
-      <p>AI training-ready outputs.</p>
-      <button>Export CSV</button>
-      <button>Export JSONL</button>
-      <button>Export Graph Format</button>
+      <p>Export annotated dataset formats.</p>
+
+      <button onclick="downloadJSON(${JSON.stringify(logs).replace(/'/g,"")})">
+        Export JSON
+      </button>
+
+      <button onclick="downloadCSV(${JSON.stringify(logs).replace(/'/g,"")})">
+        Export CSV
+      </button>
     `;
   }
+}
+
+function expandEntry(entry) {
+  const p = document.getElementById("panel");
+
+  p.innerHTML = `
+    <h2>Signal Detail</h2>
+    <pre>${JSON.stringify(entry, null, 2)}</pre>
+    <button onclick="location.reload()">Back</button>
+  `;
+}
+
+function downloadJSON(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vlsa_dataset.json";
+  a.click();
+}
+
+function downloadCSV(data) {
+  const keys = Object.keys(data[0] || {});
+  const csv = [
+    keys.join(","),
+    ...data.map(row =>
+      keys.map(k => JSON.stringify(row[k] || "")).join(",")
+    )
+  ].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vlsa_dataset.csv";
+  a.click();
 }
 </script>
 
