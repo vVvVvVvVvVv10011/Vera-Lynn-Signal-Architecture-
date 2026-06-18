@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Signal Architecture v3</title>
+<title>Vera Lynn — Signal Architecture Portfolio</title>
 
 <style>
 body {
@@ -13,17 +13,22 @@ body {
 }
 
 header {
-  padding:20px;
+  padding:40px;
   border-bottom:1px solid #1c2a3a;
 }
 
 h1 {
   margin:0;
-  font-size:20px;
+  font-size:26px;
   color:#7cc4ff;
 }
 
-#grid {
+.sub {
+  opacity:0.8;
+  margin-top:10px;
+}
+
+.container {
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:12px;
@@ -32,7 +37,7 @@ h1 {
 
 .card {
   border:1px solid #1b2a3a;
-  padding:14px;
+  padding:16px;
   background:#0c121a;
   cursor:pointer;
 }
@@ -45,7 +50,7 @@ h1 {
   position:fixed;
   right:0;
   top:0;
-  width:42%;
+  width:45%;
   height:100%;
   background:#0b1119;
   border-left:1px solid #223246;
@@ -58,25 +63,10 @@ button {
   background:#1b2a3a;
   color:#cfe6ff;
   border:none;
-  padding:8px;
+  padding:10px;
   margin:6px 0;
   cursor:pointer;
   width:100%;
-}
-
-.entry {
-  border:1px solid #223246;
-  padding:8px;
-  margin:6px 0;
-  cursor:pointer;
-}
-
-.entry:hover {
-  background:#111a26;
-}
-
-pre {
-  white-space:pre-wrap;
 }
 </style>
 </head>
@@ -84,26 +74,28 @@ pre {
 <body>
 
 <header>
-  <h1>Signal Architecture v3</h1>
-  <p>Live dataset explorer + annotation stream + export layer</p>
+  <h1>Vera Lynn</h1>
+  <div class="sub">
+    Signal Architecture • CLI Systems • Dataset Engineering • Annotation Tools
+  </div>
 </header>
 
-<div id="grid">
+<div class="container">
 
-  <div class="card" onclick="openPanel('ledger')">
-    📡 Ledger Signals
+  <div class="card" onclick="openPanel('about')">
+    👤 About
   </div>
 
-  <div class="card" onclick="openPanel('checkpoints')">
-    🧠 Checkpoints
+  <div class="card" onclick="openPanel('projects')">
+    🧠 Projects
   </div>
 
-  <div class="card" onclick="openPanel('weaver')">
-    🧬 Signal Weaver
+  <div class="card" onclick="openPanel('system')">
+    ⚙ Live System
   </div>
 
-  <div class="card" onclick="openPanel('export')">
-    📦 Dataset Export
+  <div class="card" onclick="openPanel('dataset')">
+    📊 Dataset Viewer
   </div>
 
 </div>
@@ -111,113 +103,81 @@ pre {
 <div id="panel" class="panel"></div>
 
 <script>
+
 async function loadLogs() {
   const res = await fetch("../data/logs.jsonl");
   const text = await res.text();
 
-  const lines = text.trim().split("\n");
-
-  return lines
-    .map(l => {
-      try { return JSON.parse(l); } catch(e) { return null; }
-    })
-    .filter(Boolean);
+  return text.trim().split("\n").map(l => {
+    try { return JSON.parse(l); } catch(e) { return null; }
+  }).filter(Boolean);
 }
 
 async function openPanel(type) {
   const p = document.getElementById("panel");
   p.style.display = "block";
 
-  if(type === "ledger") {
+  if(type === "about") {
+    p.innerHTML = `
+      <h2>About</h2>
+      <p>
+        I build local-first systems for structured cognition, annotation,
+        and signal processing pipelines.
+      </p>
+      <p>
+        Focus: CLI tooling, dataset structure, and human-readable machine workflows.
+      </p>
+    `;
+  }
+
+  if(type === "projects") {
+    p.innerHTML = `
+      <h2>Projects</h2>
+
+      <div>
+        <b>VLSA Work CLI</b><br/>
+        Annotation + logging + structured signal capture
+      </div>
+
+      <hr/>
+
+      <div>
+        <b>Signal Architecture</b><br/>
+        Visual dataset + graph exploration system
+      </div>
+    `;
+  }
+
+  if(type === "system") {
+    p.innerHTML = `
+      <h2>Live System</h2>
+
+      <button onclick="window.open('../data/logs.jsonl')">
+        View Raw Dataset (JSONL)
+      </button>
+
+      <button onclick="alert('CLI bridge: vlsa.sh')">
+        CLI Bridge (vlsa.sh)
+      </button>
+    `;
+  }
+
+  if(type === "dataset") {
     const logs = await loadLogs();
 
     p.innerHTML = `
-      <h2>Ledger Signals</h2>
+      <h2>Dataset Viewer</h2>
       <p>Total entries: ${logs.length}</p>
 
-      ${logs.map((l, i) => `
-        <div class="entry" onclick='expandEntry(${JSON.stringify(l).replace(/'/g,"")})'>
-          <b>${l.module || "unknown"}</b> — ${l.text || l.msg || ""}
+      ${logs.slice(0,20).map(l => `
+        <div style="border:1px solid #223; margin:6px 0; padding:6px;">
+          <b>${l.module}</b> — ${l.text || l.msg || ""}
         </div>
       `).join("")}
     `;
   }
-
-  if(type === "checkpoints") {
-    p.innerHTML = `
-      <h2>Checkpoints</h2>
-      <p>System state snapshots (future expansion).</p>
-      <button>Compare states</button>
-      <button>View timeline</button>
-    `;
-  }
-
-  if(type === "weaver") {
-    p.innerHTML = `
-      <h2>Signal Weaver</h2>
-      <p>Transforms raw logs into structured relations.</p>
-      <button>Run weave (future)</button>
-      <button>View graph (future)</button>
-    `;
-  }
-
-  if(type === "export") {
-    const logs = await loadLogs();
-
-    p.innerHTML = `
-      <h2>Dataset Export</h2>
-      <p>Export annotated dataset formats.</p>
-
-      <button onclick="downloadJSON(${JSON.stringify(logs).replace(/'/g,"")})">
-        Export JSON
-      </button>
-
-      <button onclick="downloadCSV(${JSON.stringify(logs).replace(/'/g,"")})">
-        Export CSV
-      </button>
-    `;
-  }
 }
 
-function expandEntry(entry) {
-  const p = document.getElementById("panel");
-
-  p.innerHTML = `
-    <h2>Signal Detail</h2>
-    <pre>${JSON.stringify(entry, null, 2)}</pre>
-    <button onclick="location.reload()">Back</button>
-  `;
-}
-
-function downloadJSON(data) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "vlsa_dataset.json";
-  a.click();
-}
-
-function downloadCSV(data) {
-  const keys = Object.keys(data[0] || {});
-  const csv = [
-    keys.join(","),
-    ...data.map(row =>
-      keys.map(k => JSON.stringify(row[k] || "")).join(",")
-    )
-  ].join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "vlsa_dataset.csv";
-  a.click();
-}
 </script>
 
 </body>
